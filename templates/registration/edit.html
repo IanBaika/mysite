@@ -1,0 +1,13 @@
+<link rel="stylesheet" href="/static/css/profile.css">
+{% extends "base.html" %}
+{% block content %}
+<section class="login">
+    <form method="post">
+            <h3>{{ auth_header }}</h3>
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit">{{ submit_text }}</button>
+            {{ user }}
+    </form>
+</section>
+{% endblock %}
