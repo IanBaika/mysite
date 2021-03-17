@@ -1,10 +1,9 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views import View
-from .models import Dish, Category, Cart, CartContent
-from .forms import SearchForm, LoginForm, RegisterForm, EditForm
+from .models import Dish, Cart, CartContent
+from .forms import SearchForm, LoginForm, RegisterForm, EditForm, ImageForm, DishEditForm
 from django.contrib.postgres.search import SearchVector
 
 def add_dish(request):
@@ -81,17 +80,19 @@ def view_dishes(request):
                   {'dishes': all_dishes, 'form': form, 'user': request.user})
 
 
-def dish_edit(request):
+def dish_edit(request, id):
+    global dishid
     if request.method == 'POST':
-        form = DishEditForm(request.POST)
-        if form.is_valid():
-            form.save()
+        #dishid = get_object_or_404(Dish, id=id,  available=True)
+        disheditform = DishEditForm(request.POST)
+        if disheditform.is_valid():
+            disheditform.save()
             return redirect('/')
     else:
-        form = DishEditForm()
-    return render(request, 'dishedit.html', {'form': form,
+        disheditform = DishEditForm()
+    return render(request, 'dishedit.html', {'dish': dishid, 'form': disheditform,
                                              'submit_text': 'Изменить',
-                                             'auth_header': 'Изменение блюда',})
+                                             'auth_header': 'Изменение блюда', })
 
 
 def image_upload_view(request):
@@ -124,32 +125,27 @@ class MasterView(View):
         return cart_records
 
     def get_cart(self):
-        if self.request.user.is_authenticated:
-            user_id = self.request.user.id
-            try:
-                cart = Cart.objects.get(user_id=user_id)
-            except ObjectDoesNotExist:
-                cart = Cart(user_id=user_id,
-                            total_cost=0)
-                cart.save()
-
-        elif self.request.user.is_authenticated:
-            user_id = self.request.user.id
-            cart = Cart.objects.get(session_key=session_key)
-            cart.save()
-
-        else:
-            session_key = self.request.session.session_key
-            if not session_key:
-                self.request.session.save()
+        def get_cart(self):
+            if self.request.user.is_authenticated:
+                user_id = self.request.user.id
+                try:
+                    cart = Cart.objects.get(user_id=user_id)
+                except ObjectDoesNotExist:
+                    cart = Cart(user_id=user_id,
+                                total_cost=0)
+                    cart.save()
+            else:
                 session_key = self.request.session.session_key
-            try:
-                cart = Cart.objects.get(session_key=session_key)
-            except ObjectDoesNotExist:
-                cart = Cart(session_key=session_key,
-                            total_cost=0)
-                cart.save()
-        return cart
+                if not session_key:
+                    self.request.session.save()
+                    session_key = self.request.session.session_key
+                try:
+                    cart = Cart.objects.get(session_key=session_key)
+                except ObjectDoesNotExist:
+                    cart = Cart(session_key=session_key,
+                                total_cost=0)
+                    cart.save()
+            return cart
 
 
 class HomeView(MasterView):

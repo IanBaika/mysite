@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import User
 
 
@@ -52,20 +51,6 @@ class Dish(models.Model):
     class Meta:
         verbose_name = "Блюдо"
         verbose_name_plural = "Блюда"
-
-
-class Beverage(models.Model):
-    # CharField, IntegerField FloatField e.t.c - поля модели
-    title = models.CharField(max_length=100, verbose_name='Название напитка')
-    beverage_type = models.CharField(max_length=100, verbose_name='Тип напитка')
-    description = models.CharField(max_length=100, verbose_name='Описание напитка')
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = 'Напиток'
-        verbose_name_plural = 'Напитки'
 
 
 class Image(models.Model):

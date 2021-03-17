@@ -4,5 +4,7 @@
 .dish_cart img {
     width: 120px
 }
-
+body {
+  background-color: lightblue;
+}
 

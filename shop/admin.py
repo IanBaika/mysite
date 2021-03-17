@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Dish, Beverage, Category, Cart, CartContent
+from .models import Dish, Category, Cart, CartContent
 
 admin.site.register(Category)
 
@@ -10,10 +10,6 @@ class DishAdmin(admin.ModelAdmin):
     # список отображаемых полей модели
     list_display = ['id', 'title', 'dish_type', 'description']
 
-@admin.register(Beverage)
-class BeverageAdmin(admin.ModelAdmin):
-    # список отображаемых полей модели
-    list_display = ['id', 'title', 'beverage_type', 'description']
 
 admin.site.register(Cart)
 admin.site.register(CartContent)
