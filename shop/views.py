@@ -80,17 +80,15 @@ def view_dishes(request):
                   {'dishes': all_dishes, 'form': form, 'user': request.user})
 
 
-def dish_edit(request, id):
-    global dishid
-    if request.method == 'POST':
-        #dishid = get_object_or_404(Dish, id=id,  available=True)
-        disheditform = DishEditForm(request.POST)
+def dish_edit(request):
+    if request.method == 'GET':
+        disheditform = DishEditForm.get(pk=this_object_id)
         if disheditform.is_valid():
             disheditform.save()
             return redirect('/')
     else:
-        disheditform = DishEditForm()
-    return render(request, 'dishedit.html', {'dish': dishid, 'form': disheditform,
+        disheditform = DishEditForm(pk=this_object_id)
+    return render(request, 'dishedit.html', {'form': disheditform,
                                              'submit_text': 'Изменить',
                                              'auth_header': 'Изменение блюда', })
 

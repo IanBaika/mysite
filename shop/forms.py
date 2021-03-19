@@ -33,7 +33,7 @@ class SearchForm(forms.Form):
 class DishEditForm(forms.ModelForm):
     class Meta:
         model = Dish
-        fields = ('title', 'dish_type', 'description')
+        fields = ('title', 'dish_type', 'description', 'price')
 
 
 class EditForm(forms.ModelForm):
