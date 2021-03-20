@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Dish, Category, Cart, CartContent
+from .models import Dish, Category, Cart, CartContent, Company
 
 admin.site.register(Category)
 
@@ -13,4 +13,6 @@ class DishAdmin(admin.ModelAdmin):
 
 admin.site.register(Cart)
 admin.site.register(CartContent)
+admin.site.register(Company)
+
 

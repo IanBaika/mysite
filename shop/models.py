@@ -33,7 +33,7 @@ class Dish(models.Model):
     dish_type = models.CharField(max_length=100, verbose_name='Тип напитка')
     # связь многие ко многим позволяет связывать множество категорий с множеством товаров
     categories = models.ManyToManyField(Category, verbose_name='категория', )
-    # company = models.ForeignKey(Company, verbose_name='компания', on_delete=models.SET_NULL, null=True)
+    company = models.ForeignKey(Company, verbose_name='компания', on_delete=models.SET_NULL, null=True)
     description = models.CharField(max_length=500, verbose_name='Описание')
     # цена не может быть ниже 0, поэтому используется PositiveIntegerField
     price = models.PositiveIntegerField(verbose_name='цена')
@@ -76,8 +76,12 @@ class Cart(models.Model):
             total += item.product.price * item.qty
         return total
 
+    def get_cart_content(self):
+        items = CartContent.objects.all()
+        return items
 
 class CartContent(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Dish, on_delete=models.CASCADE)
     qty = models.PositiveIntegerField(null=True)
+

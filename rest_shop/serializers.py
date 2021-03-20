@@ -1,42 +1,34 @@
 from django.contrib.auth.models import User, Group
-from shop.models import *
+from shop.models import Dish, Company, Cart, CartContent, Category
 from rest_framework import serializers
 
 
 class CompanySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Company
-        fields = ['id', 'title']
+        fields = ['url', 'id', 'title']
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Company
+        model = Category
         fields = ['title', 'description']
 
 
 class DishSerializer(serializers.HyperlinkedModelSerializer):
+    categories = CategorySerializer(many=True)
+    # company = CompanySerializer()
+    depth = 1
+
     class Meta:
-        model = Company
-        fields = ['id', 'title', 'dish_type', 'categories', 'description', 'price']
+        model = Dish
+        fields = ['id', 'title', 'url', 'company', 'categories']
 
 
 class ImageSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Company
         fields = ['title', 'image']
-
-
-class CartSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Company
-        fields = ['session_key', 'user', 'total_cost']
-
-
-class CartContentSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Company
-        fields = ['cart', 'product', 'qty']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -49,3 +41,26 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
         fields = ['url', 'name']
+
+
+class CartContentSerializer(serializers.ModelSerializer):
+    product = DishSerializer()
+
+    class Meta:
+        model = CartContent
+        fields = '__all__'
+
+
+class CartSerializer(serializers.HyperlinkedModelSerializer):
+    user = UserSerializer
+    cart_content = CartContentSerializer(source='get_cart_content', many=True)
+    depth = 1
+
+    class Meta:
+        model = Cart
+        fields = ('id', 'user', 'cart_content')
+
+
+
+
+
