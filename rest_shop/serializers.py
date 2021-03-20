@@ -17,7 +17,7 @@ class CategorySerializer(serializers.HyperlinkedModelSerializer):
 
 class DishSerializer(serializers.HyperlinkedModelSerializer):
     categories = CategorySerializer(many=True)
-    # company = CompanySerializer()
+    company = CompanySerializer()
     depth = 1
 
     class Meta:

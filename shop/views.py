@@ -5,51 +5,11 @@ from django.views import View
 from .models import Dish, Cart, CartContent
 from .forms import SearchForm, LoginForm, RegisterForm, EditForm, ImageForm, DishEditForm
 from django.contrib.postgres.search import SearchVector
+from django.contrib.auth.decorators import login_required
 
 def add_dish(request):
     some_dish = Dish(title='рамен2')
     some_dish.save()
-
-
-def register(request):
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = True
-            user.save()
-            login(request, user)
-
-            return redirect('/')
-    else:
-        form = RegisterForm()
-    return render(request, 'registration/login.html', {'form': form})
-
-
-def log_in(request):
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['login']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                # if request.GET and 'next' in request.GET:
-                #     return redirect(request.GET['next'])
-                return redirect('/')
-            else:
-                form.add_error('login', 'Bad login or password')
-                form.add_error('password', 'Bad login or password')
-    else:
-        form = LoginForm()
-
-    return render(request, 'registration/login.html', {'form': form })
-
-
-def logout_view(request):
-    logout(request)
-    return redirect('/')
 
 
 def edit(request):
@@ -123,27 +83,26 @@ class MasterView(View):
         return cart_records
 
     def get_cart(self):
-        def get_cart(self):
-            if self.request.user.is_authenticated:
-                user_id = self.request.user.id
-                try:
-                    cart = Cart.objects.get(user_id=user_id)
-                except ObjectDoesNotExist:
-                    cart = Cart(user_id=user_id,
-                                total_cost=0)
-                    cart.save()
-            else:
+        if self.request.user.is_authenticated:
+            user_id = self.request.user.id
+            try:
+                cart = Cart.objects.get(user_id=user_id)
+            except ObjectDoesNotExist:
+                cart = Cart(user_id=user_id,
+                            total_cost=0)
+                cart.save()
+        else:
+            session_key = self.request.session.session_key
+            if not session_key:
+                self.request.session.save()
                 session_key = self.request.session.session_key
-                if not session_key:
-                    self.request.session.save()
-                    session_key = self.request.session.session_key
-                try:
-                    cart = Cart.objects.get(session_key=session_key)
-                except ObjectDoesNotExist:
-                    cart = Cart(session_key=session_key,
-                                total_cost=0)
-                    cart.save()
-            return cart
+            try:
+                cart = Cart.objects.get(session_key=session_key)
+            except ObjectDoesNotExist:
+                cart = Cart(session_key=session_key,
+                            total_cost=0)
+                cart.save()
+        return cart
 
 
 class HomeView(MasterView):
@@ -167,6 +126,48 @@ class HomeView(MasterView):
             form = SearchForm()
         return render(request, 'base.html',
                       {'dishes': self.all_dishes, 'form': form, 'user': request.user})
+
+
+@login_required
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = True
+            user.save()
+            login(request, user)
+
+            return redirect('/')
+    else:
+        form = RegisterForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+
+def log_in(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['login']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                # if request.GET and 'next' in request.GET:
+                #     return redirect(request.GET['next'])
+                return redirect('/')
+            else:
+                form.add_error('login', 'Bad login or password')
+                form.add_error('password', 'Bad login or password')
+    else:
+        form = LoginForm()
+
+    return render(request, 'registration/login.html', {'form': form })
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('/')
 
 
 class CartView(MasterView):

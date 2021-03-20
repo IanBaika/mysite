@@ -80,8 +80,9 @@ class Cart(models.Model):
         items = CartContent.objects.all()
         return items
 
+
 class CartContent(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Dish, on_delete=models.CASCADE)
-    qty = models.PositiveIntegerField(null=True)
+    qty = models.PositiveIntegerField()
 
